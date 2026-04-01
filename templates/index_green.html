@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎵 Музыкальный анализ личности</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50' y='70' text-anchor='middle' font-size='80'%3E🎵%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #e3dfd1;
+    --surface: #eae7dc;
+    --card:    #ffffff;
+    --border:  rgba(145,149,96,.08);
+    --orange:  #b8bc7a;
+    --cyan:    #7a9e88;
+    --white:   #4a6b5a;
+    --muted:   rgba(74,107,90,.50);
+    --text:    #4a6b5a;
+    --accent:  #d4e8ba;
+    --button:  #7a9e88;
+    --button-hover: #6a8e78;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  /* ── THERMAL BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 55% at 15% 20%, rgba(212,232,186,.20) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 85% 75%, rgba(184,188,122,.12) 0%, transparent 55%),
+      radial-gradient(ellipse 40% 40% at 60% 10%, rgba(240,222,159,.15) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 30% 90%, rgba(122,158,136,.10) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+    animation: thermalShift 10s ease-in-out infinite alternate;
+  }
+  @keyframes thermalShift {
+    0%   { opacity: 1; }
+    50%  { opacity: .65; }
+    100% { opacity: 1; }
+  }
+
+  /* ── NOISE TEXTURE ── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .35;
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 600px;
+    padding: 48px 20px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeUp .7s ease both;
+  }
+  
+  .title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 32px; font-weight: 900;
+    letter-spacing: -1.5px;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  
+  .title span {
+    background: linear-gradient(90deg, var(--orange), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* ── FORM CONTAINER ── */
+  .form-container {
+    width: 100%;
+    padding: 32px 28px;
+    background: var(--white);
+    border: 2px solid rgba(145,149,96,.12);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp .7s .1s ease both;
+    box-shadow: 0 4px 20px rgba(122,158,136,.06);
+  }
+  
+  .form-container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(184,188,122,.25), transparent);
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--white);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: .3px;
+    font-family: 'Unbounded', sans-serif;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(255,255,255,.80);
+    border: 2px solid rgba(145,149,96,.15);
+    border-radius: 12px;
+    font-size: 15px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+  }
+
+  input::placeholder {
+    color: var(--muted);
+  }
+
+  input:focus,
+  select:focus {
+    outline: none;
+    background: rgba(255,255,255,.95);
+    border-color: var(--button);
+    box-shadow: 0 4px 20px rgba(122,158,136,.12);
+  }
+
+  select {
+    cursor: pointer;
+  }
+
+  select option {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* ── TRACKS SECTION ── */
+  .tracks-container {
+    margin-top: 32px;
+  }
+
+  .input-mode-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    background: rgba(255,255,255,.30);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid rgba(145,149,96,.10);
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .mode-btn.active {
+    background: rgba(212,232,186,.35);
+    color: var(--white);
+    border: 1px solid rgba(184,188,122,.20);
+  }
+
+  .mode-btn:hover:not(.active) {
+    background: rgba(255,255,255,.40);
+  }
+
+  .tracks-hint {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  code {
+    background: rgba(212,232,186,.25);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  #tracksInputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  #tracksList {
+    width: 100%;
+    min-height: 200px;
+    padding: 14px 18px;
+    background: rgba(255,255,255,.80);
+    border: 2px solid rgba(145,149,96,.15);
+    border-radius: 12px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    resize: vertical;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  #tracksList::placeholder {
+    color: var(--muted);
+  }
+
+  #tracksList:focus {
+    outline: none;
+    background: rgba(255,255,255,.95);
+    border-color: var(--button);
+    box-shadow: 0 4px 20px rgba(122,158,136,.12);
+  }
+
+  .input-mode-content {
+    display: none;
+  }
+
+  .input-mode-content.active {
+    display: block;
+  }
+
+  .track-input {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .track-input input {
+    flex: 1;
+  }
+
+  .remove-track-btn {
+    width: 42px;
+    height: 42px;
+    background: rgba(255,140,140,.20);
+    border: 1px solid rgba(255,140,140,.30);
+    color: #e88888;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .remove-track-btn:hover {
+    background: rgba(255,140,140,.35);
+    transform: scale(1.05);
+  }
+
+  /* ── BUTTONS ── */
+  button {
+    width: 100%;
+    padding: 16px;
+    background: var(--button);
+    border: 2px solid var(--button);
+    border-radius: 12px;
+    color: var(--bg);
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Unbounded', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(212,232,186,.25), transparent);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+
+  button:hover::before {
+    opacity: 1;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    background: var(--button-hover);
+    border-color: var(--button-hover);
+    box-shadow: 0 4px 24px rgba(122,158,136,.20);
+  }
+
+  button:active {
+    transform: translateY(0) scale(.99);
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  #addTrackBtn {
+    margin-top: 0;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--text);
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  #addTrackBtn:hover {
+    background: #c4d8aa;
+    border-color: #c4d8aa;
+    box-shadow: 0 6px 28px rgba(212,232,186,.25);
+  }
+
+  #submitBtn {
+    margin-top: 28px;
+    font-size: 16px;
+    padding: 18px;
+  }
+
+  /* ── LOADING ── */
+  .loading {
+    width: 100%;
+    margin-top: 24px;
+    padding: 24px;
+    background: rgba(255,255,255,.40);
+    border: 1px solid rgba(145,149,96,.15);
+    border-radius: 16px;
+    text-align: center;
+    color: var(--white);
+    font-size: 15px;
+    display: none;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .loading.show {
+    display: block;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* ── ERROR ── */
+  .error {
+    width: 100%;
+    margin-top: 24px;
+    padding: 18px;
+    background: rgba(255,140,140,.25);
+    border: 1px solid rgba(255,140,140,.35);
+    border-radius: 12px;
+    color: #d87878;
+    font-size: 14px;
+    display: none;
+  }
+
+  .error.show {
+    display: block;
+    animation: shake 0.5s ease;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  /* ── RESULT ── */
+  .result {
+    width: 100%;
+    margin-top: 32px;
+    padding: 36px 28px;
+    background: rgba(255,255,255,.50);
+    border: 1px solid rgba(145,149,96,.15);
+    border-radius: 20px;
+    display: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(184,188,122,.30), transparent);
+  }
+
+  .result.show {
+    display: block;
+    animation: fadeUp .6s ease;
+  }
+
+  .personality-type {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 32px;
+    line-height: 1.3;
+    background: linear-gradient(90deg, var(--orange), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .stat-item {
+    background: rgba(255,255,255,.60);
+    border: 1px solid rgba(145,149,96,.15);
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(212,232,186,.15), transparent);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+
+  .stat-item:hover::before {
+    opacity: 1;
+  }
+
+  .stat-item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(184,188,122,.25);
+  }
+
+  .stat-label {
+    color: var(--muted);
+    font-size: 11px;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Unbounded', sans-serif;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    font-family: 'Unbounded', sans-serif;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 32px 0;
+    animation: fadeUp .7s .2s ease both;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 40px;
+    font-size: 10px;
+    color: rgba(74,107,90,.25);
+    font-family: 'Unbounded', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: fadeUp .7s .3s ease both;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .title {
+      font-size: 26px;
+    }
+    
+    .form-container {
+      padding: 24px 20px;
+    }
+    
+    .stats {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="title">🎵 Музыкальный <span>анализ</span> личности</div>
+    <div class="subtitle">Введите ваши любимые треки и узнайте свой музыкальный тип личности</div>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-container">
+    <form id="analysisForm">
+      <div class="form-group">
+        <label>Ваше имя</label>
+        <input type="text" id="name" required placeholder="Введите имя">
+      </div>
+      
+      <div class="form-group">
+        <label>Возраст</label>
+        <input type="number" id="age" min="10" max="100" required placeholder="Введите возраст">
+      </div>
+      
+      <div class="form-group">
+        <label>Пол</label>
+        <select id="gender" required>
+          <option value="">Выберите</option>
+          <option value="мужской">Мужской</option>
+          <option value="женский">Женский</option>
+        </select>
+      </div>
+      
+      <div class="tracks-container">
+        <label>Ваши любимые треки</label>
+        
+        <!-- Toggle between input modes -->
+        <div class="input-mode-toggle">
+          <button type="button" class="mode-btn active" data-mode="individual">➕ По одному</button>
+          <button type="button" class="mode-btn" data-mode="list">📝 Список</button>
+        </div>
+        
+        <!-- Individual mode (separate inputs) -->
+        <div id="individualMode" class="input-mode-content active">
+          <div class="tracks-hint">
+            Минимум 3, рекомендуется 10-20 треков<br>
+            Формат: <code>Название - Исполнитель</code> или <code>Название Исполнитель</code>
+          </div>
+          <div id="tracksInputs"></div>
+          <button type="button" id="addTrackBtn">➕ Добавить трек</button>
+        </div>
+        
+        <!-- List mode (textarea) -->
+        <div id="listMode" class="input-mode-content">
+          <div class="tracks-hint">
+            Минимум 3, рекомендуется 10-20 треков<br>
+            Формат: <code>Название - Исполнитель</code> (каждый трек с новой строки)
+          </div>
+          <textarea id="tracksList" placeholder="Введите треки построчно, например:&#10;Название трека 1 - Исполнитель 1&#10;Название трека 2 - Исполнитель 2&#10;Название трека 3 - Исполнитель 3"></textarea>
+        </div>
+      </div>
+      
+      <button type="submit" id="submitBtn">Анализировать</button>
+    </form>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    ⏳ Анализируем ваши треки...
+  </div>
+
+  <!-- ERROR -->
+  <div class="error" id="error"></div>
+
+  <!-- RESULT -->
+  <div class="result" id="result">
+    <div class="personality-type" id="personalityType"></div>
+    
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-label">Энергия</div>
+        <div class="stat-value" id="hypeRatio"></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Агрессия</div>
+        <div class="stat-value" id="aggressiveRatio"></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Меланхолия</div>
+        <div class="stat-value" id="sadRatio"></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Спокойствие</div>
+        <div class="stat-value" id="calmRatio"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">k1laure · 2026</div>
+
+</div>
+
+<script>
+  let trackCount = 0;
+  let currentMode = 'individual'; // 'list' or 'individual'
+  
+  // Mode toggle functionality
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const mode = this.dataset.mode;
+      
+      // Update active button
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Update active content
+      document.querySelectorAll('.input-mode-content').forEach(c => c.classList.remove('active'));
+      if (mode === 'list') {
+        document.getElementById('listMode').classList.add('active');
+      } else {
+        document.getElementById('individualMode').classList.add('active');
+      }
+      
+      currentMode = mode;
+    });
+  });
+  
+  // Function to add track input
+  function addTrackInput() {
+    trackCount++;
+    const tracksInputs = document.getElementById('tracksInputs');
+    const div = document.createElement('div');
+    div.className = 'track-input';
+    div.id = `track-${trackCount}`;
+    div.innerHTML = `
+      <input type="text" name="track_${trackCount}" placeholder="Название - Исполнитель">
+      <button type="button" class="remove-track-btn" onclick="removeTrack(${trackCount})">−</button>
+    `;
+    tracksInputs.appendChild(div);
+  }
+  
+  // Function to remove track input
+  function removeTrack(id) {
+    const trackDiv = document.getElementById(`track-${id}`);
+    if (trackDiv) {
+      trackDiv.remove();
+    }
+  }
+  
+  // Add initial 3 tracks for individual mode
+  for (let i = 0; i < 3; i++) {
+    addTrackInput();
+  }
+  
+  // Add track button handler
+  document.getElementById('addTrackBtn').addEventListener('click', addTrackInput);
+  
+  // Form submission
+  document.getElementById('analysisForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value;
+    const age = parseInt(document.getElementById('age').value);
+    const gender = document.getElementById('gender').value;
+    
+    let tracks = [];
+    
+    // Collect tracks based on current mode
+    if (currentMode === 'list') {
+      // Parse textarea
+      const tracksList = document.getElementById('tracksList').value;
+      const lines = tracksList.split('\n').filter(line => line.trim());
+      
+      for (const line of lines) {
+        const value = line.trim();
+        if (!value) continue;
+        
+        let title = '';
+        let artist = '';
+        
+        // Try delimiters first: -, –, —, |
+        const delimiters = [' - ', ' – ', ' — ', ' | '];
+        let foundDelimiter = false;
+        
+        for (const delimiter of delimiters) {
+          if (value.includes(delimiter)) {
+            const parts = value.split(delimiter).map(p => p.trim());
+            if (parts.length >= 2) {
+              title = parts[0];
+              artist = parts[1];
+              foundDelimiter = true;
+              break;
+            }
+          }
+        }
+        
+        // If no delimiter found, try to split by space (last word = artist)
+        if (!foundDelimiter) {
+          const words = value.trim().split(/\s+/);
+          if (words.length >= 2) {
+            artist = words[words.length - 1];
+            title = words.slice(0, -1).join(' ');
+          } else if (words.length === 1) {
+            title = words[0];
+            artist = 'Unknown';
+          }
+        }
+        
+        if (title && artist) {
+          tracks.push({ title, artist });
+        }
+      }
+    } else {
+      // Collect from individual inputs
+      const trackInputs = document.querySelectorAll('.track-input input[type="text"]');
+      
+      for (const input of trackInputs) {
+        const value = input.value.trim();
+        if (!value) continue;
+        
+        let title = '';
+        let artist = '';
+        
+        // Try delimiters first: -, –, —, |
+        const delimiters = [' - ', ' – ', ' — ', ' | '];
+        let foundDelimiter = false;
+        
+        for (const delimiter of delimiters) {
+          if (value.includes(delimiter)) {
+            const parts = value.split(delimiter).map(p => p.trim());
+            if (parts.length >= 2) {
+              title = parts[0];
+              artist = parts[1];
+              foundDelimiter = true;
+              break;
+            }
+          }
+        }
+        
+        // If no delimiter found, try to split by space (last word = artist)
+        if (!foundDelimiter) {
+          const words = value.trim().split(/\s+/);
+          if (words.length >= 2) {
+            artist = words[words.length - 1];
+            title = words.slice(0, -1).join(' ');
+          } else if (words.length === 1) {
+            title = words[0];
+            artist = 'Unknown';
+          }
+        }
+        
+        if (title && artist) {
+          tracks.push({ title, artist });
+        }
+      }
+    }
+    
+    if (tracks.length === 0) {
+      document.getElementById('error').textContent = 'Введите хотя бы один трек';
+      document.getElementById('error').classList.add('show');
+      return;
+    }
+    
+    if (tracks.length < 3) {
+      document.getElementById('error').textContent = `Введено ${tracks.length} ${tracks.length === 1 ? 'трек' : 'трека'}. Необходимо минимум 3 трека для анализа.`;
+      document.getElementById('error').classList.add('show');
+      return;
+    }
+    
+    // Show loading
+    document.getElementById('loading').classList.add('show');
+    document.getElementById('result').classList.remove('show');
+    document.getElementById('error').classList.remove('show');
+    
+    try {
+      const response = await fetch('/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, age, gender, tracks })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Ошибка анализа');
+      }
+      
+      // Show results
+      document.getElementById('personalityType').textContent = data.personality_type;
+      document.getElementById('hypeRatio').textContent = (data.hype_ratio * 100).toFixed(0) + '%';
+      document.getElementById('aggressiveRatio').textContent = (data.aggressive_ratio * 100).toFixed(0) + '%';
+      document.getElementById('sadRatio').textContent = (data.sad_ratio * 100).toFixed(0) + '%';
+      document.getElementById('calmRatio').textContent = (data.calm_ratio * 100).toFixed(0) + '%';
+      
+      document.getElementById('result').classList.add('show');
+      
+    } catch (error) {
+      document.getElementById('error').textContent = error.message;
+      document.getElementById('error').classList.add('show');
+    } finally {
+      document.getElementById('loading').classList.remove('show');
+    }
+  });
+</script>
+
+</body>
+</html>
