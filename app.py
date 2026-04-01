@@ -2,20 +2,21 @@ from flask import Flask, request, jsonify, render_template
 import psycopg2
 import requests
 import json
+import os
 
 app = Flask(__name__)
 
 # Database configuration
 DB_CONFIG = {
-    'host': 'shinkansen.proxy.rlwy.net',
-    'port': 48403,
-    'database': 'music_personality_db',
-    'user': 'postgres',
-    'password': 'QHAFImJPyIemSaqvrqYGTjwPOMzwhDRZ'
+    'host': os.environ.get('DB_HOST', 'shinkansen.proxy.rlwy.net'),
+    'port': int(os.environ.get('DB_PORT', 48403)),
+    'database': os.environ.get('DB_NAME', 'music_personality_db'),
+    'user': os.environ.get('DB_USER', 'postgres'),
+    'password': os.environ.get('DB_PASSWORD', 'your-db-password-here')
 }
 
 # OpenRouter API configuration
-OPENROUTER_API_KEY = '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'
+OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', 'your-api-key-here')
 OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
 OPENROUTER_SITE_URL = 'https://music-personality-db.com'
 OPENROUTER_APP_NAME = 'Music Personality Analyzer'
