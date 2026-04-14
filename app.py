@@ -8,11 +8,11 @@ app = Flask(__name__)
 
 # Database configuration
 DB_CONFIG = {
-    'host': os.environ.get('DB_HOST', 'shinkansen.proxy.rlwy.net'),
-    'port': int(os.environ.get('DB_PORT', 48403)),
+    'host': os.environ.get('DB_HOST', 'monorail.proxy.rlwy.net'),
+    'port': int(os.environ.get('DB_PORT', 36225)),
     'database': os.environ.get('DB_NAME', 'music_personality_db'),
     'user': os.environ.get('DB_USER', 'postgres'),
-    'password': os.environ.get('DB_PASSWORD', 'your-db-password-here')
+    'password': os.environ.get('DB_PASSWORD', 'XtjJPkHVwqaElUqZwaXciHTznLBWOqcB')
 }
 
 # OpenRouter API configuration
